@@ -1,0 +1,33 @@
+<div class="container">
+  <h2>Registrar Despesa</h2>
+  <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()">
+    <div>
+      <label for="description">Descrição:</label>
+      <input
+        id="description"
+        type="text"
+        formControlName="description"
+        placeholder="Ex.: Compra de alimentos"
+      />
+    </div>
+    <div>
+      <label for="amount">Valor:</label>
+      <input id="amount" type="number" formControlName="amount" />
+    </div>
+    <div>
+      <label for="category">Categoria:</label>
+      <select id="category" formControlName="category">
+        <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+      </select>
+    </div>
+    <button type="submit" [disabled]="expenseForm.invalid">Salvar</button>
+  </form>
+
+  <hr />
+
+  <h2>Lista de Despesas</h2>
+  <div *ngFor="let expense of expenses">
+    <p>{{ expense.description }} - {{ expense.category }} - {{ expense.amount }}</p>
+    <button (click)="deleteExpense(expense.id)">Excluir</button>
+  </div>
+</div>
