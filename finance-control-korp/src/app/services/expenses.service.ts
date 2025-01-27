@@ -1,24 +1,40 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+interface Expense {
+  id?: number;
+  description: string;
+  amount: number;
+  category: string;
+  date: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpenseService {
-  private expenses: any[] = [];
-  private currentId = 1;
+  private apiUrl = 'http://localhost:5117/api/expenses'; // Substitua pela URL do backend
 
-  constructor() {}
+  constructor(private http: HttpClient) {}
 
-  getExpenses(): any[] {
-    return this.expenses;
+  // Obter todas as despesas
+  getExpenses(): Observable<Expense[]> {
+    return this.http.get<Expense[]>(this.apiUrl);
   }
 
-  addExpense(expense: any): void {
-    const newExpense = { ...expense, id: this.currentId++ };
-    this.expenses.push(newExpense);
+  // Criar uma nova despesa
+  addExpense(expense: Expense): Observable<Expense> {
+    return this.http.post<Expense>(this.apiUrl, expense);
   }
 
-  deleteExpense(id: number): void {
-    this.expenses = this.expenses.filter((expense) => expense.id !== id);
+  // Atualizar uma despesa
+  updateExpense(id: number, expense: Expense): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}`, expense);
+  }
+
+  // Excluir uma despesa
+  deleteExpense(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }
