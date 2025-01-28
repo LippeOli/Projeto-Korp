@@ -14,7 +14,7 @@ interface Expense {
   providedIn: 'root',
 })
 export class ExpenseService {
-  private apiUrl = 'http://localhost:5117/api/expenses'; // Substitua pela URL do backend
+  private apiUrl = 'http://localhost:5117/api/expenses'; 
 
   constructor(private http: HttpClient) {}
 
