@@ -16,13 +16,15 @@ export class ExpensesComponent implements OnInit {
   expenseForm: FormGroup;
   expenses: any[] = [];
   categories: string[] = ['Alimentação', 'Transporte', 'Salário', 'Outros'];
+  selectedExpense: any | null = null; // Propriedade para gerenciar o modal
+  isEditMode: boolean = false; // Controla se o modal está em modo de edição
 
   constructor(private fb: FormBuilder, private expenseService: ExpenseService) {
     this.expenseForm = this.fb.group({
       description: ['', Validators.required],
       amount: ['', [Validators.required, Validators.min(0.01)]],
       category: ['', Validators.required],
-      date: ['', Validators.required], // Incluímos o campo de data
+      date: ['', Validators.required], // Campo de data
     });
   }
 
@@ -42,7 +44,7 @@ export class ExpensesComponent implements OnInit {
     if (this.expenseForm.valid) {
       const newExpense = {
         ...this.expenseForm.value,
-        date: new Date(this.expenseForm.value.date).toISOString(), // Converter a data para UTC
+        date: new Date(this.expenseForm.value.date).toISOString(), // Converter data para UTC
       };
 
       this.expenseService.addExpense(newExpense).subscribe(
@@ -64,4 +66,53 @@ export class ExpensesComponent implements OnInit {
       this.expenses = this.expenses.filter((expense) => expense.id !== id);
     });
   }
+
+  // Abrir o modal para gerenciar uma despesa
+  openModal(expense: any): void {
+    this.selectedExpense = expense; // Define a despesa selecionada
+    this.isEditMode = false; // Inicia o modal no modo "Gerenciar"
+
+    // Preenche o formulário com os dados da despesa selecionada
+    this.expenseForm.patchValue({
+      description: expense.description,
+      amount: expense.amount,
+      category: expense.category,
+      date: new Date(expense.date).toISOString().split('T')[0], // Formata a data para "yyyy-MM-dd"
+    });
+  }
+
+  // Fechar o modal
+  closeModal(): void {
+    this.selectedExpense = null; 
+    this.isEditMode = false; 
+  }
+  
+  enableEditMode(): void {
+    this.isEditMode = true; // Ativa o modo de edição no modal
+  }
+  
+  editExpense(): void {
+    if (!this.selectedExpense || !this.expenseForm.valid) return;
+  
+    const updatedExpense = {
+      ...this.selectedExpense, // Mantém os dados atuais (como ID)
+      ...this.expenseForm.value, // Substitui pelos novos valores do formulário
+      date: new Date(this.expenseForm.value.date).toISOString(), // Garante o formato UTC para a data
+    };
+  
+    this.expenseService.updateExpense(updatedExpense.id, updatedExpense).subscribe(
+      () => {
+        const index = this.expenses.findIndex((e) => e.id === updatedExpense.id);
+        if (index !== -1) {
+          this.expenses[index] = updatedExpense;
+        }
+        this.closeModal(); // Fecha o modal após a edição
+      },
+      (error) => {
+        console.error('Erro ao atualizar a despesa:', error);
+      }
+    );
+  }
+  
+  
 }

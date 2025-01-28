@@ -29,9 +29,9 @@ export class ExpenseService {
   }
 
   // Atualizar uma despesa
-  updateExpense(id: number, expense: Expense): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/${id}`, expense);
-  }
+  updateExpense(id: number, expense: any): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}`, expense); 
+  }  
 
   // Excluir uma despesa
   deleteExpense(id: number): Observable<void> {
